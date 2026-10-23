@@ -1,59 +1,92 @@
-# Parcial 1: API REST
+# 🚀 Proyecto: Paginación, Búsqueda y Filtrado
 
-## 1. Descripción del Problema
+¡Bienvenido/a a este repositorio! Este proyecto fue desarrollado con mucho cariño y esfuerzo para ayudarte a aprender e implementar patrones de diseño sólidos en el backend y una interfaz moderna en el frontend. ❤️✨
 
-Se solicita diseñar e implementar una **API REST** para un sistema centralizado de gestión y seguimiento de tareas. La plataforma maneja usuarios con diferentes niveles de responsabilidad y un flujo estricto de asignación y resolución de tareas según el grupo al que pertenecen.
+---
 
-## 2. Dominio y Modelo de Datos
+## 🛠️ Tecnologías Utilizadas
 
-### Entidad `usuarios`
+* **API (Backend):** [Fastify](https://www.fastify.io/) con documentación interactiva en **Swagger**.
+* **Frontend:** [Angular](https://angular.io/).
+* **Base de Datos:** [PostgreSQL](https://www.postgresql.org/).
+* **Patrón de Arquitectura:** **Repository Pattern** para la gestión de datos, paginación, filtros y búsquedas eficientes.
 
-Representa a las personas registradas en la plataforma:
+---
 
-- **`id_usuario`**: Identificador único del usuario.
-- **`username`**: Nombre de usuario único utilizado para iniciar sesión.
-- **`nombres`** y **`apellidos`**: Datos identificatorios.
-- **`fecha_nacimiento`**: Fecha de nacimiento del usuario.
-- **`nombre_completo`**: Campo generado automáticamente mediante la concatenación de nombres y apellidos.
-- **`roles`**: Arreglo de roles asociados al usuario. Puede contener uno o más de los siguientes valores: `'user'`, `'admin'`, `'superadmin'`. Nunca puede estar vacío.
-- **`activo`**: Indicador booleano que define si el usuario se encuentra habilitado en el sistema.
+## 📽️ Tutorial en Video
 
-> **Seguridad:** Las contraseñas no deben guardarse en la tabla de usuarios. Deben residir en una tabla separada (`credenciales`) utilizando un mecanismo de hashing seguro (`pgcrypto`).
+Si preferís seguir la explicación paso a paso en video de cómo levantar y configurar la API, podés ver el siguiente tutorial:
 
-### Entidad `tareas`
+▶️ **[Ver Video Guía: Cómo levantar la API](https://youtu.be/RxG5GYRnU2U?si=1nt-Ixk7iuCSLeoA)**
 
-Representa las unidades de trabajo o pendientes del sistema:
+---
 
-- **`id_tarea`**: Identificador único de la tarea.
-- **`id_creador`**: Usuario autor que dio de alta la tarea.
-- **`grupo`**: Grupo destinatario para resolver la tarea (`'user'`, `'admin'` o `'superadmin'`).
-- **`titulo`**: Título descriptivo.
-- **`descripcion`**: Detalle ampliado de la tarea.
-- **`prioridad`**: Escala de prioridad con los valores exactos: `'0:baja'`, `'1:media'`, `'2:alta'`.
-- **`creada`**: Marca de tiempo (`TIMESTAMPTZ`) de creación de la tarea.
-- **`terminada`**: Marca de tiempo (`TIMESTAMPTZ`) en que la tarea se da por completada (`NULL` mientras permanezca abierta).
-- **`estado`**: Campo generado automáticamente (`'Cerrada'` si `terminada` posee un valor, o `'Abierta'` en caso contrario).
+## 🚀 Guía de Instalación y Configuración
 
-## 3. Reglas de Negocio y Autorización
+### 1. Clonar el repositorio
 
-La API debe hacer cumplir de forma estricta las siguientes reglas de permiso e identidad:
+```bash
+git clone https://github.com/aristov983/clase-paginacion/
+cd clase-paginacion
+```
 
-1. **Consulta de Tareas:** Cualquier usuario que se encuentre autenticado puede visualizar la lista global de tareas.
-2. **Creación de Tareas:** Únicamente los usuarios que posean el rol `admin` o `superadmin` tienen permitido crear tareas. El id_creador debe ser el usuario autenticado.
-3. **Edición General:** Solamente el **creador original** de la tarea o un usuario con rol **`superadmin`** pueden modificar el `titulo`, la `descripcion`, el `grupo` asignado o la `prioridad`.
-4. **Finalización / Resolución:** Un usuario únicamente puede dar por **finalizada/cerrada** una tarea si su perfil cuenta con el **grupo específico al que está dirigida la tarea**. El campo estado se calcula automáticamente en la base de datos en base a la fecha de **terminada**
-5. **Eliminación:** Exclusivamente el **creador original** (y autenticado) de la tarea tiene permisos para borrarla. Ni siquiera un rol `admin` o `superadmin` puede eliminar una tarea si no es de su autoría.
+---
 
-## 4. Requerimientos Técnicos e Implementación
+### 2. Configurar la Base de Datos (PostgreSQL)
 
-- **Rutas y Métodos HTTP:** Deberá definir la estructura de URIs, verbos HTTP y códigos de estado (`200`, `201`, `204`, `400`, `401`, `403`, `404`, `409`) que mejor se adecúen a los principios REST y a las acciones requeridas por el dominio (autenticación, consulta, creación, actualización parcial/total, cierre y eliminación).
-- **Tipado e Interfaces:** La API debe para todas las rutas realizar la validación de esquemas que correspondan según lo visto en clase.
-- **Persistencia:** La interacción con la base de datos PostgreSQL debe modularizarse mediante el patrón **Repository**.
-- **Manejo de Errores:** Se debe contar con una gestión centralizada de excepciones para transformar los fallos de base de datos y validaciones en respuestas JSON claras para el cliente.
+1. Abrí tu cliente de base de datos preferido (por ejemplo, **DBeaver**).
+2. Creá una nueva base de datos en **PostgreSQL**.
+3. Navega a la carpeta `db/` dentro del proyecto y ejecutá el script SQL correspondiente para crear las tablas e insertar los datos iniciales.
 
-## 5. Criterios de Evaluación
+---
 
-- **Modelado REST:** Elección apropiada de recursos, sustantivos, verbos HTTP y códigos de estado.
-- **Seguridad y Autorización:** Correcta verificación de los permisos según la matriz de roles y la autoría de cada recurso.
-- **Arquitectura y Limpieza de Código:** Separación adecuada de capas (rutas, esquemas, repositorios y utilidades de base de datos).
-- **Robustez:** Correcto manejo de casos de borde (recursos no encontrados, accesos no autorizados y violaciones de restricciones en base de datos).
+### 3. Levantar la API (Backend)
+
+Navega a la carpeta del backend e instala las dependencias:
+
+```bash
+cd api
+npm i
+```
+
+> ⚠️ *Nota:* Si encontrás alguna advertencia o conflicto de dependencias, podés ejecutar:
+> ```bash
+> npm audit fix
+> ```
+
+Para iniciar el servidor en modo desarrollo:
+
+```bash
+npm run dev
+```
+
+La API quedará ejecutándose y podrás acceder a la documentación interactiva de **Swagger** para probar los endpoints de paginación y filtrado.
+
+---
+
+### 4. Levantar el Frontend (Angular)
+
+En una nueva terminal, navega a la carpeta del frontend e instala las dependencias:
+
+```bash
+cd front
+npm i
+```
+
+Para iniciar la aplicación de Angular:
+
+```bash
+npm start
+```
+
+Una vez completado el proceso, abrí tu navegador e ingresá a `http://localhost:4200` para ver la aplicación funcionando.
+
+---
+
+## 💬 Unas palabras para la comunidad...
+
+> *"Aprender a programar es un viaje lleno de retos, momentos de frustración y grandes alegrías cuando las cosas finalmente funcionan. Este proyecto fue creado con la intención de compartir conocimiento y acompañarte en tu crecimiento como desarrollador/a. Nunca dejes de curiosear, preguntar y construir cosas increíbles. ¡El límite lo ponés vos! 🚀💪✨"*
+
+---
+
+🌟 **Si este proyecto te sirvió, ¡no olvides dejarle una estrella al repositorio!**
