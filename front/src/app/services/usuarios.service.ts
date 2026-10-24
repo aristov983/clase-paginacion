@@ -10,7 +10,8 @@ export class UsuariosService {
   private _httpClient = inject(HttpClient);
 
   public async getAll() {
-    return await firstValueFrom(this._httpClient.get<Usuario[]>(this.baseUrl));
+    const users = await firstValueFrom(this._httpClient.get<{ data: Usuario[], meta: any }>(this.baseUrl));
+    return users.data
   }
 
   public async getById(id: number) {

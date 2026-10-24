@@ -4,7 +4,7 @@ import { UsuariosService } from '../../../services/usuarios.service';
 import { UsuarioForm } from '../../../components/usuario/usuario.form';
 import { Usuario } from '../../../model/usuario';
 import { Router } from '@angular/router';
-import { ErrorStore } from '../../../shared/services/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -16,7 +16,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class UsuariosEditarPage {
   private readonly usuariosService = inject(UsuariosService);
   private readonly router = inject(Router);
-  private readonly errorService = inject(ErrorStore);
+  private readonly notificationService = inject(NotificationService);
 
   public id_usuario = input.required<number, string>({
     transform: (value) => Number(value),
@@ -40,7 +40,7 @@ export class UsuariosEditarPage {
       await this.usuariosService.update(this.id_usuario(), usuario);
       this.router.navigate(['/', 'usuarios']);
     } catch (error: any) {
-      this.errorService.addErrorFromError(error);
+      this.notificationService.addErrorFromError(error);
     }
   }
 }

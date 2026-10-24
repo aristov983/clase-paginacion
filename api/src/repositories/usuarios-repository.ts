@@ -3,6 +3,7 @@ import {
   NotAuthorizedError,
   NotFoundError,
 } from "../errors/response.errors.ts";
+
 import type {
   ActualizarUsuarioType,
   CrearUsuarioType,
@@ -14,12 +15,35 @@ class UsuariosRepository {
     SELECT * FROM usuarios U
   `;
 
+  async obtenerTotal() {
+    const query = `
+      SELECT COUNT(*) as total FROM usuarios U
+    `;
+    const result = await myPool.query(query);
+    return result.rows[0].total;
+  }
+
   async obtenerTodos(): Promise<Usuario[]> {
     const query = `
       ${this.baseQuery}
       ORDER BY id_usuario ASC;
     `;
     const result = await myPool.query(query);
+    return result.rows;
+  }
+
+  async obtenerPagina(page: number, pageSize: number): Promise<Usuario[]> {
+    // if (!page || !pageSize) throw new BadRequestError("No se especificó page y/o limit");
+    const offset = (page - 1) * pageSize;
+    const query = `
+      ${this.baseQuery}
+      ORDER BY id_usuario ASC
+      LIMIT $1 OFFSET $2
+      ;
+    `;
+    const values = [pageSize, offset];
+    console.log({ query, values });
+    const result = await myPool.query(query, values);
     return result.rows;
   }
 

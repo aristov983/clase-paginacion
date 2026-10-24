@@ -1,4 +1,5 @@
 import { Type, type Static } from "@fastify/type-provider-typebox";
+import { MetadataSchema } from "./pagination.ts";
 
 export const GrupoSchema = Type.Union([
   Type.Literal("user"),
@@ -68,7 +69,13 @@ export const PayloadSchema = Type.Object({
   grupos: UsuarioSchema.properties.grupos,
 });
 
+export const UsuariosPaginados = Type.Object({
+  data: Type.Array(UsuarioSchema),
+  meta: MetadataSchema,
+});
+
 export type Usuario = Static<typeof UsuarioSchema>;
+export type UsuariosPaginados = Static<typeof UsuariosPaginados>;
 export type CrearUsuarioType = Static<typeof CrearUsuarioSchema>;
 export type ActualizarUsuarioType = Static<typeof ActualizarUsuarioSchema>;
 export type LoginType = Static<typeof LoginSchema>;

@@ -1,0 +1,21 @@
+@if (hayNotificaciones()){ 
+    <div class="notification-box">
+        @for (n of notifications(); track $index) {
+            <div class="notification">
+
+                <!-- BANNER DE COLOR -->
+                <div class="banner" 
+                    [class.info]="n.noti_type == 'info'"
+                    [class.warning]="n.noti_type == 'warning'"
+                    [class.error]="n.noti_type == 'error'">
+                </div>
+
+                <!-- MENSAJE DE ERROR -->
+                <p class="message">
+                    {{n.message}}
+                </p>
+            </div>
+        }
+        <button (click)="cleanNoti()">clean</button>
+    </div>
+}
