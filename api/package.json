@@ -26,6 +26,7 @@
     "@fastify/swagger": "^9.8.1",
     "@fastify/swagger-ui": "^6.1.1",
     "@fastify/type-provider-typebox": "^6.1.0",
+    "@fastify/websocket": "^11.3.4",
     "fastify": "^5.0.0",
     "fastify-cli": "^8.0.0",
     "fastify-plugin": "^5.0.0",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@types/node": "^25.0.3",
     "@types/pg": "^8.23.1",
+    "@types/ws": "^8.18.2",
     "c8": "^11.0.0",
     "concurrently": "^9.0.0",
     "fastify-tsconfig": "^3.0.0",

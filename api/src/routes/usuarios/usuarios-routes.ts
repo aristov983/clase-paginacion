@@ -61,7 +61,11 @@ const usuarioRoutes: FastifyPluginAsyncTypebox = async (
     },
     handler: async function (request, reply) {
       reply.status(201);
-      return usuariosRepo.crear(request.body);
+      const user = await usuariosRepo.crear(request.body);
+
+      fastify.notificar({ msg: "Nuevo usuario creado" });
+
+      return user;
     },
   });
 
