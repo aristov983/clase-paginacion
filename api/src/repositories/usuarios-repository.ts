@@ -23,6 +23,16 @@ class UsuariosRepository {
     return result.rows;
   }
 
+  async obtenerPaginados(pagina: number, limite: number): Promise<Usuario[]> {
+    const offset = (pagina - 1) * limite;
+
+    const query = `SELECT * FROM usuarios LIMIT $1 OFFSET $2`;
+
+    const res = await myPool.query(query, [limite, offset]);
+
+    return res.rows;
+  }
+
   async obtenerPorId(idUsuario: number): Promise<Usuario> {
     const query = `
       ${this.baseQuery}
