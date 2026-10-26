@@ -33,7 +33,6 @@ class UsuariosRepository {
   }
 
   async obtenerPagina(page: number, pageSize: number): Promise<Usuario[]> {
-    // if (!page || !pageSize) throw new BadRequestError("No se especificó page y/o limit");
     const offset = (page - 1) * pageSize;
     const query = `
       ${this.baseQuery}
