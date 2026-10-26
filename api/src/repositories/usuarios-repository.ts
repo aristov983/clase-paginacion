@@ -32,14 +32,19 @@ class UsuariosRepository {
     return result.rows;
   }
 
-  async obtenerPaginados(pagina: number, limite: number): Promise<Usuario[]> {
-    const offset = (pagina - 1) * limite;
-
-    const query = `SELECT * FROM usuarios LIMIT $1 OFFSET $2`;
-
-    const res = await myPool.query(query, [limite, offset]);
-
-    return res.rows;
+  async obtenerPagina(page: number, pageSize: number): Promise<Usuario[]> {
+    // if (!page || !pageSize) throw new BadRequestError("No se especificó page y/o limit");
+    const offset = (page - 1) * pageSize;
+    const query = `
+      ${this.baseQuery}
+      ORDER BY id_usuario ASC
+      LIMIT $1 OFFSET $2
+      ;
+    `;
+    const values = [pageSize, offset];
+    console.log({ query, values });
+    const result = await myPool.query(query, values);
+    return result.rows;
   }
 
   async obtenerPorId(idUsuario: number): Promise<Usuario> {
