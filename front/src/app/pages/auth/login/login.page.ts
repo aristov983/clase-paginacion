@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { Login } from '../../../model/usuario';
 import { AuthService } from '../../../services/auth.service';
-import { ErrorStore } from '../../../shared/services/error.service';
+import { NotificationService } from '../../../shared/services/notification.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
 })
 export class LoginPage {
   readonly #authService = inject(AuthService);
-  readonly #errorStore = inject(ErrorStore);
+  readonly #notificationService = inject(NotificationService);
   readonly #router = inject(Router);
 
   readonly #loginModel = signal<Login>({
@@ -39,7 +39,7 @@ export class LoginPage {
       this.#authService.setUser(user);
       this.#router.navigate(['/', 'home']);
     } catch (error: any) {
-      this.#errorStore.addErrorFromError(error);
+      this.#notificationService.addErrorFromError(error);
     }
   }
 }

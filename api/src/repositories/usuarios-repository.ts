@@ -3,6 +3,7 @@ import {
   NotAuthorizedError,
   NotFoundError,
 } from "../errors/response.errors.ts";
+
 import type {
   ActualizarUsuarioType,
   CrearUsuarioType,
@@ -13,6 +14,14 @@ class UsuariosRepository {
   private readonly baseQuery = `
     SELECT * FROM usuarios U
   `;
+
+  async obtenerTotal() {
+    const query = `
+      SELECT COUNT(*) as total FROM usuarios U
+    `;
+    const result = await myPool.query(query);
+    return result.rows[0].total;
+  }
 
   async obtenerTodos(): Promise<Usuario[]> {
     const query = `

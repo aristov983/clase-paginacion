@@ -15,7 +15,9 @@
         </ul>
       </nav>
     </aside>
-
+    
+    <notifications />
+    
     <main id="app-page">
       <router-outlet />
     </main>
@@ -26,9 +28,3 @@
   </footer>
 </div>
 
-@if (errorService.hayError()) {
-  <dialog #errordialog>
-    <p>{{ this.errorService.errors() }}</p>
-    <button (click)="this.errorService.clearErrors()">Entendido</button>
-  </dialog>
-}

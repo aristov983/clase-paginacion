@@ -6,8 +6,11 @@ import {
   UsuarioSchema,
   CrearUsuarioSchema,
   ActualizarUsuarioSchema,
+  UsuariosPaginados,
 } from "../../schemas/usuarios.ts";
 import { usuariosRepo } from "../../repositories/usuarios-repository.ts";
+import { request } from "node:http";
+import { PaginationSchema } from "../../schemas/pagination.ts";
 
 const usuarioRoutes: FastifyPluginAsyncTypebox = async (
   fastify,
@@ -16,14 +19,27 @@ const usuarioRoutes: FastifyPluginAsyncTypebox = async (
   fastify.get("/", {
     schema: {
       tags: ["usuarios"],
-      summary: "Listar todos los usuarios",
-      description: "Devuelve la lista completa de usuarios registrados",
+      summary: "Obtener páginas de usuarios",
+      description: "Devuelve las páginas solicitadas de usuarios registrados",
+      querystring: PaginationSchema,
       response: {
-        200: Type.Array(UsuarioSchema),
+        200: UsuariosPaginados,
       },
     },
-    handler: async function (_request, _reply) {
-      return await usuariosRepo.obtenerTodos();
+    handler: async function (request, reply) {
+      const { page, limit } = request.query;
+      const total = await usuariosRepo.obtenerTotal();
+      const usuarios = await usuariosRepo.obtenerPagina(page, limit);
+      const res: UsuariosPaginados = {
+        data: usuarios,
+        meta: {
+          total,
+          page,
+          limit,
+          last_page: Math.ceil(total / limit),
+        },
+      };
+      return res;
     },
   });
 
