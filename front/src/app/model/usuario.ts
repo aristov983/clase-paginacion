@@ -22,3 +22,17 @@ export type Login = {
 export type LoginResponse = {
   token: string;
 };
+
+export type Orden = 'asc' | 'desc';
+
+export type Meta = {
+  total: number;
+  page: number;
+  limit: number;
+  last_page: number;
+};
+
+export type UsuariosPaginados = {
+  data: Usuario[];
+  meta: Meta;
+};

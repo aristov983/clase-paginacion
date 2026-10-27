@@ -2,6 +2,9 @@
   <h3>Lista de usuarios ({{ this.totalUsuarios() }})</h3>
   <button (click)="this.goToCrear()"><b>+</b></button>
 
+  <button (click)="this.cambiarOrden('asc')">&#8593;</button>
+  <button (click)="this.cambiarOrden('desc')">&#8595;</button>
+
   <table>
     <thead>
       <tr>
@@ -37,4 +40,12 @@
       }
     </tbody>
   </table>
+
+  <div>
+    <button (click)="this.paginaAnterior()" [disabled]="this.page() === 1">&#8592;</button>
+    <span>Página {{ this.page() }} de {{ this.lastPage() }}</span>
+    <button (click)="this.paginaSiguiente()" [disabled]="this.page() >= this.lastPage()">
+      &#8594;
+    </button>
+  </div>
 </div>

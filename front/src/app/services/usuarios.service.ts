@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { Usuario } from '../model/usuario';
+import { Usuario, Orden, UsuariosPaginados } from '../model/usuario';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -10,8 +10,10 @@ export class UsuariosService {
   private _httpClient = inject(HttpClient);
 
   public async getAll() {
-    const users = await firstValueFrom(this._httpClient.get<{ data: Usuario[], meta: any }>(this.baseUrl));
-    return users.data
+    const users = await firstValueFrom(
+      this._httpClient.get<{ data: Usuario[]; meta: any }>(this.baseUrl),
+    );
+    return users.data;
   }
 
   public async getById(id: number) {
@@ -30,5 +32,13 @@ export class UsuariosService {
 
   public async remove(id: number) {
     return firstValueFrom(this._httpClient.delete<Usuario>(`${this.baseUrl}/${id}`));
+  }
+
+  public async getPage(page: number, limit: number, orden: Orden) {
+    return await firstValueFrom(
+      this._httpClient.get<UsuariosPaginados>(this.baseUrl, {
+        params: { page, limit, orden },
+      }),
+    );
   }
 }

@@ -5,9 +5,10 @@ import {
   inject,
   OnInit,
   resource,
+  signal,
   viewChild,
 } from '@angular/core';
-import { Usuario } from '../../../model/usuario';
+import { Orden, Usuario, UsuariosPaginados } from '../../../model/usuario';
 import { Router, RouterLink } from '@angular/router';
 import { UsuariosService } from '../../../services/usuarios.service';
 import { DatePipe, UpperCasePipe } from '@angular/common';
@@ -21,24 +22,56 @@ export class ListarUsuariosPage implements OnInit {
   private router = inject(Router);
   private usuarioService = inject(UsuariosService); //Inyección de dependencias.
 
+  //lo que el usuario puede cambiar
+  public page = signal(1);
+  public limit = signal(5);
+  public orden = signal<Orden>('asc');
+
+  //el resource se vuelve a ejecutar solo cuando cambia page, limit o orden
   public usuariosResource = resource({
-    defaultValue: [],
-    params: () => {
-      return {};
-    },
+    defaultValue: {
+      data: [],
+      meta: {
+        total: 0,
+        page: 1,
+        limit: 10,
+        last_page: 1,
+      },
+    } as UsuariosPaginados,
+    params: () => ({
+      page: this.page(),
+      limit: this.limit(),
+      orden: this.orden(),
+    }),
     loader: ({ params }) => {
-      return this.usuarioService.getAll();
+      return this.usuarioService.getPage(params.page, params.limit, params.orden);
     },
   });
 
-  public usuarios = computed<Usuario[]>(() => this.usuariosResource.value());
+  //datos derivados de la respuesta
+  public usuarios = computed<Usuario[]>(() => this.usuariosResource.value().data);
 
-  public totalUsuarios = computed(() => this.usuarios().length);
+  public totalUsuarios = computed(() => this.usuariosResource.value().meta.total);
+
+  public lastPage = computed(() => this.usuariosResource.value().meta.last_page);
 
   public async ngOnInit(): Promise<void> {}
 
   public goToCrear() {
     this.router.navigate(['/', 'usuarios', 'create']);
+  }
+
+  public cambiarOrden(orden: Orden) {
+    this.orden.set(orden);
+    this.page.set(1); //reinicio la página a 1
+  }
+
+  public paginaAnterior() {
+    this.page.update((p) => p - 1);
+  }
+
+  public paginaSiguiente() {
+    this.page.update((p) => p + 1);
   }
 
   public async borrarUsuario(id_usuario: number) {
