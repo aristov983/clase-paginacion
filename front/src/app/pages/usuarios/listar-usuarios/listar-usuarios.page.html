@@ -1,9 +1,17 @@
 <div>
   <h3>Lista de usuarios ({{ this.totalUsuarios() }})</h3>
-  <button (click)="this.goToCrear()"><b>+</b></button>
-
   <button (click)="this.cambiarOrden('asc')">&#8593;</button>
   <button (click)="this.cambiarOrden('desc')">&#8595;</button>
+
+  <button (click)="this.buscar(buscador.value)">&#x1F50E;&#xFE0E;</button>
+  <input
+    #buscador
+    type="text"
+    placeholder="Buscar por nombre"
+    (keyup.enter)="this.buscar(buscador.value)"
+  />
+
+  <button (click)="this.goToCrear()"><b>+</b></button>
 
   <table>
     <thead>

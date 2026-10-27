@@ -34,11 +34,12 @@ export class UsuariosService {
     return firstValueFrom(this._httpClient.delete<Usuario>(`${this.baseUrl}/${id}`));
   }
 
-  public async getPage(page: number, limit: number, orden: Orden) {
-    return await firstValueFrom(
-      this._httpClient.get<UsuariosPaginados>(this.baseUrl, {
-        params: { page, limit, orden },
-      }),
-    );
+  public async getPage(page: number, limit: number, orden: Orden, nombre: string) {
+    const params: Record<string, string | number> = { page, limit, orden };
+    if (nombre) {
+      params['nombre'] = nombre;
+    }
+
+    return await firstValueFrom(this._httpClient.get<UsuariosPaginados>(this.baseUrl, { params }));
   }
 }

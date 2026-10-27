@@ -26,6 +26,7 @@ export class ListarUsuariosPage implements OnInit {
   public page = signal(1);
   public limit = signal(5);
   public orden = signal<Orden>('asc');
+  public nombre = signal('');
 
   //el resource se vuelve a ejecutar solo cuando cambia page, limit o orden
   public usuariosResource = resource({
@@ -42,9 +43,10 @@ export class ListarUsuariosPage implements OnInit {
       page: this.page(),
       limit: this.limit(),
       orden: this.orden(),
+      nombre: this.nombre(),
     }),
     loader: ({ params }) => {
-      return this.usuarioService.getPage(params.page, params.limit, params.orden);
+      return this.usuarioService.getPage(params.page, params.limit, params.orden, params.nombre);
     },
   });
 
@@ -59,6 +61,11 @@ export class ListarUsuariosPage implements OnInit {
 
   public goToCrear() {
     this.router.navigate(['/', 'usuarios', 'create']);
+  }
+
+  public buscar(texto: string) {
+    this.nombre.set(texto.trim());
+    this.page.set(1);
   }
 
   public cambiarOrden(orden: Orden) {
