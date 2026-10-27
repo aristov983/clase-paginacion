@@ -15,12 +15,18 @@ class UsuariosRepository {
     SELECT * FROM usuarios U
   `;
 
-  async obtenerTotal() {
-    const query = `
+  async obtenerTotal(nombre?: string) {
+    let query = `
       SELECT COUNT(*) as total FROM usuarios U
     `;
-    const result = await myPool.query(query);
-    return result.rows[0].total;
+    const values: any[] = [];
+
+    if (nombre) {
+      query += ` WHERE nombres ILIKE $1`;
+      values.push(`%${nombre}%`);
+    }
+    const result = await myPool.query(query, values);
+    return parseInt(result.rows[0].total, 10);
   }
 
   async obtenerTodos(): Promise<Usuario[]> {
@@ -32,15 +38,27 @@ class UsuariosRepository {
     return result.rows;
   }
 
-  async obtenerPagina(page: number, pageSize: number): Promise<Usuario[]> {
+  async obtenerPagina(
+    page: number,
+    pageSize: number,
+    nombre?: string,
+  ): Promise<Usuario[]> {
     const offset = (page - 1) * pageSize;
-    const query = `
-      ${this.baseQuery}
-      ORDER BY id_usuario ASC
-      LIMIT $1 OFFSET $2
-      ;
-    `;
-    const values = [pageSize, offset];
+
+    const values: any[] = [];
+
+    let query = `${this.baseQuery}`;
+
+    if (nombre) {
+      query += ` WHERE nombres ILIKE $1`;
+      values.push(`%${nombre}%`);
+      query += ` ORDER BY id_usuario ASC LIMIT $2 OFFSET $3;`;
+      values.push(pageSize, offset);
+    } else {
+      query += ` ORDER BY id_usuario ASC LIMIT $1 OFFSET $2;`;
+      values.push(pageSize, offset);
+    }
+
     console.log({ query, values });
     const result = await myPool.query(query, values);
     return result.rows;
