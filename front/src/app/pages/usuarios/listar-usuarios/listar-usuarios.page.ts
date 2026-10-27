@@ -24,7 +24,7 @@ export class ListarUsuariosPage implements OnInit {
 
   //lo que el usuario puede cambiar
   public page = signal(1);
-  public limit = signal(5);
+  public limit = signal(10);
   public orden = signal<Orden>('asc');
   public nombre = signal('');
 
@@ -71,6 +71,11 @@ export class ListarUsuariosPage implements OnInit {
   public cambiarOrden(orden: Orden) {
     this.orden.set(orden);
     this.page.set(1); //reinicio la página a 1
+  }
+
+  public cambiarLimite(valor: string) {
+    this.limit.set(Number(valor));
+    this.page.set(1);
   }
 
   public paginaAnterior() {

@@ -55,5 +55,11 @@
     <button (click)="this.paginaSiguiente()" [disabled]="this.page() >= this.lastPage()">
       &#8594;
     </button>
+    <select #selectorLimite (change)="this.cambiarLimite(selectorLimite.value)">
+      <option value="5" [selected]="this.limit() === 5">5</option>
+      <option value="10" [selected]="this.limit() === 10">10</option>
+      <option value="20" [selected]="this.limit() === 20">20</option>
+      <option value="50" [selected]="this.limit() === 50">50</option>
+    </select>
   </div>
 </div>
