@@ -28,6 +28,9 @@ export const UsuariosQuerySchema = Type.Object({
         "Filtro opcional para buscar usuarios por nombre",
     }),
   ),
+  activo: Type.Optional(
+    Type.Boolean({ description: "Filtrar por usuarios activos o inactivos" }),
+  ),
 });
 
 export const CrearUsuarioSchema = Type.Object({

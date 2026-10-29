@@ -27,21 +27,11 @@ export const TareaSchema = Type.Object(
 
 export const TareasQuerySchema = Type.Object({
   ...PaginationSchema.properties,
-  ordenarPor: Type.Union(
-    [
-      Type.Literal("id_tarea"),
-      Type.Literal("titulo"),
-      Type.Literal("prioridad"),
-      Type.Literal("creada"),
-    ],
-    { default: "id_tarea", description: "Se ordenan por id" },
-  ),
   titulo: Type.Optional(
     Type.String({
       minLength: 1,
       maxLength: 100,
-      description:
-        "Filtro opcional para buscar tareas por título",
+      description: "Filtro opcional para buscar tareas por título",
     }),
   ),
   estado: Type.Optional(TareaSchema.properties.estado),
