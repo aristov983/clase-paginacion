@@ -7,10 +7,10 @@ import {
 	CrearUsuarioSchema,
 	ActualizarUsuarioSchema,
 	UsuariosPaginados,
+	UsuariosQuerySchema,
 } from "../../schemas/usuarios.ts";
 import { usuariosRepo } from "../../repositories/usuarios-repository.ts";
 import { request } from "node:http";
-import { PaginationSchema } from "../../schemas/pagination.ts";
 
 const usuarioRoutes: FastifyPluginAsyncTypebox = async (
 	fastify,
@@ -21,7 +21,7 @@ const usuarioRoutes: FastifyPluginAsyncTypebox = async (
 			tags: ["usuarios"],
 			summary: "Obtener páginas de usuarios",
 			description: "Devuelve las páginas solicitadas de usuarios registrados",
-			querystring: PaginationSchema,
+			querystring: UsuariosQuerySchema,
 			response: {
 				200: UsuariosPaginados,
 			},

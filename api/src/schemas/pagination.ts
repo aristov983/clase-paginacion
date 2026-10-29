@@ -21,12 +21,6 @@ export const PaginationSchema = Type.Object({
 		default: 10,
 		description: 'Cantidad de "filas" por página.',
 	}),
-	nombre: Type.Optional(
-		Type.String({
-			description:
-				"Filtro opcional para buscar usuarios por nombre (busqueda parcial)",
-		}),
-	),
 	orden: Type.Unsafe<"asc" | "desc">({
 		type: "string",
 		enum: ["asc", "desc"],
