@@ -17,7 +17,7 @@ class UsuariosRepository {
 
 	async obtenerTotal(nombre?: string) {
 		let query = `
-      SELECT COUNT(*) as total FROM usuarios U
+      SELECT COUNT(*)::int as total FROM usuarios U
     `;
 		const values: any[] = [];
 
@@ -26,7 +26,7 @@ class UsuariosRepository {
 			values.push(`%${nombre}%`);
 		}
 		const result = await myPool.query(query, values);
-		return parseInt(result.rows[0].total, 10);
+		return result.rows[0].total;
 	}
 
 	async obtenerTodos(): Promise<Usuario[]> {
