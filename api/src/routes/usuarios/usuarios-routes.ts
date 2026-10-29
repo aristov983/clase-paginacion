@@ -10,7 +10,6 @@ import {
 	UsuariosQuerySchema,
 } from "../../schemas/usuarios.ts";
 import { usuariosRepo } from "../../repositories/usuarios-repository.ts";
-import { request } from "node:http";
 
 const usuarioRoutes: FastifyPluginAsyncTypebox = async (
 	fastify,
