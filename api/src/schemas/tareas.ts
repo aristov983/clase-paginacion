@@ -25,8 +25,23 @@ export const TareaSchema = Type.Object(
   { $id: "Tarea" },
 );
 
+export const TareasOrdenarPorSchema = Type.Union(
+  [
+    Type.Literal("id_tarea"),
+    Type.Literal("titulo"),
+    Type.Literal("prioridad"),
+    Type.Literal("creada"),
+    Type.Literal("estado"),
+  ],
+  {
+    default: "creada",
+    description: "Campo por el cual se ordenan los resultados",
+  },
+);
+
 export const TareasQuerySchema = Type.Object({
   ...PaginationSchema.properties,
+  ordenar_por: Type.Optional(TareasOrdenarPorSchema),
   titulo: Type.Optional(
     Type.String({
       minLength: 1,
@@ -35,6 +50,8 @@ export const TareasQuerySchema = Type.Object({
     }),
   ),
   estado: Type.Optional(TareaSchema.properties.estado),
+  prioridad: Type.Optional(TareaSchema.properties.prioridad),
+  grupo: Type.Optional(GrupoSchema),
 });
 
 export const CrearTareaSchema = Type.Object({
@@ -51,6 +68,7 @@ export const TareasPaginadas = Type.Object({
 
 export type Tarea = Static<typeof TareaSchema>;
 export type TareasQuery = Static<typeof TareasQuerySchema>;
+export type TareasOrdenarPor = Static<typeof TareasOrdenarPorSchema>;
 export type CrearTareaType = Static<typeof CrearTareaSchema>;
 export type TareasPaginadas = Static<typeof TareasPaginadas>;
 

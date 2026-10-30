@@ -18,16 +18,32 @@ export const UsuarioSchema = Type.Object({
   activo: Type.Boolean(),
 });
 
+export const UsuariosOrdenarPorSchema = Type.Union(
+  [
+    Type.Literal("id_usuario"),
+    Type.Literal("username"),
+    Type.Literal("nombres"),
+    Type.Literal("apellidos"),
+    Type.Literal("fecha_nacimiento"),
+  ],
+  {
+    default: "id_usuario",
+    description: "Campo por el cual se ordenan los resultados",
+  },
+);
+
 export const UsuariosQuerySchema = Type.Object({
   ...PaginationSchema.properties,
+  ordenar_por: Type.Optional(UsuariosOrdenarPorSchema),
   nombre: Type.Optional(
     Type.String({
       minLength: 1,
       maxLength: 50,
       description:
-        "Filtro opcional para buscar usuarios por nombre",
+        "Filtro opcional para buscar usuarios por nombres o apellidos",
     }),
   ),
+  grupo: Type.Optional(GrupoSchema),
   activo: Type.Optional(
     Type.Boolean({ description: "Filtrar por usuarios activos o inactivos" }),
   ),
@@ -92,6 +108,7 @@ export const UsuariosPaginados = Type.Object({
 export type Usuario = Static<typeof UsuarioSchema>;
 export type UsuariosPaginados = Static<typeof UsuariosPaginados>;
 export type UsuariosQuery = Static<typeof UsuariosQuerySchema>;
+export type UsuariosOrdenarPor = Static<typeof UsuariosOrdenarPorSchema>;
 export type CrearUsuarioType = Static<typeof CrearUsuarioSchema>;
 export type ActualizarUsuarioType = Static<typeof ActualizarUsuarioSchema>;
 export type LoginType = Static<typeof LoginSchema>;

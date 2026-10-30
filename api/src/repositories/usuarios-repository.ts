@@ -8,6 +8,8 @@ import type {
 	ActualizarUsuarioType,
 	CrearUsuarioType,
 	Usuario,
+	UsuariosOrdenarPor,
+	UsuariosQuery,
 } from "../schemas/usuarios.ts";
 
 class UsuariosRepository {
@@ -15,16 +17,51 @@ class UsuariosRepository {
     SELECT * FROM usuarios U
   `;
 
-	async obtenerTotal(nombre?: string) {
-		let query = `
-      SELECT COUNT(*)::int as total FROM usuarios U
-    `;
+	/**
+	 * Columnas por las que se permite ordenar. Se usa un mapa fijo (y no el valor
+	 * que llega por query) para que nunca se concatene texto del cliente en el SQL.
+	 */
+	private readonly columnasOrden: Record<UsuariosOrdenarPor, string> = {
+		id_usuario: "U.id_usuario",
+		username: "U.username",
+		nombres: "U.nombres",
+		apellidos: "U.apellidos",
+		fecha_nacimiento: "U.fecha_nacimiento",
+	};
+
+	/**
+	 * Arma el WHERE (con placeholders $1, $2...) y sus valores a partir de los
+	 * filtros opcionales. Lo comparten el COUNT y la consulta de la página.
+	 */
+	private construirFiltros(filtros: UsuariosQuery) {
+		const condiciones: string[] = [];
 		const values: any[] = [];
 
-		if (nombre) {
-			query += ` WHERE nombres ILIKE $1`;
-			values.push(`%${nombre}%`);
+		if (filtros.nombre) {
+			values.push(`%${filtros.nombre}%`);
+			condiciones.push(
+				`(U.nombres || ' ' || U.apellidos) ILIKE $${values.length}`,
+			);
 		}
+		if (filtros.grupo) {
+			values.push(filtros.grupo);
+			condiciones.push(`$${values.length} = ANY(U.grupos)`);
+		}
+		if (filtros.activo !== undefined) {
+			values.push(filtros.activo);
+			condiciones.push(`U.activo = $${values.length}`);
+		}
+
+		const where = condiciones.length ? ` WHERE ${condiciones.join(" AND ")}` : "";
+		return { where, values };
+	}
+
+	async obtenerTotal(filtros: UsuariosQuery) {
+		const { where, values } = this.construirFiltros(filtros);
+		const query = `
+      SELECT COUNT(*)::int as total FROM usuarios U
+      ${where};
+    `;
 		const result = await myPool.query(query, values);
 		return result.rows[0].total;
 	}
@@ -38,30 +75,26 @@ class UsuariosRepository {
 		return result.rows;
 	}
 
-	async obtenerPagina(
-		page: number,
-		pageSize: number,
-		nombre?: string,
-		orden: "asc" | "desc" = "asc",
-	): Promise<Usuario[]> {
-		const offset = (page - 1) * pageSize;
+	async obtenerPagina(query: UsuariosQuery): Promise<Usuario[]> {
+		const { page, limit, orden, ordenar_por } = query;
+		const offset = (page - 1) * limit;
+		const { where, values } = this.construirFiltros(query);
 
-		const values: any[] = [];
+		const columna = this.columnasOrden[ordenar_por ?? "id_usuario"];
+		const direccion = orden === "desc" ? "DESC" : "ASC";
 
-		let query = `${this.baseQuery}`;
+		// El id_usuario como desempate mantiene estable el orden entre páginas
+		// cuando se ordena por un campo que puede repetirse (grupo, apellidos...)
+		const sql = `
+      ${this.baseQuery}
+      ${where}
+      ORDER BY ${columna} ${direccion}, U.id_usuario ASC
+      LIMIT $${values.length + 1} OFFSET $${values.length + 2};
+    `;
+		values.push(limit, offset);
 
-		if (nombre) {
-			query += ` WHERE nombres ILIKE $1`;
-			values.push(`%${nombre}%`);
-			query += ` ORDER BY id_usuario ${orden} LIMIT $2 OFFSET $3;`;
-			values.push(pageSize, offset);
-		} else {
-			query += ` ORDER BY id_usuario ${orden} LIMIT $1 OFFSET $2;`;
-			values.push(pageSize, offset);
-		}
-
-		console.log({ query, values });
-		const result = await myPool.query(query, values);
+		console.log({ query: sql, values });
+		const result = await myPool.query(sql, values);
 		return result.rows;
 	}
 

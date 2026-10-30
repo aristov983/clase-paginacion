@@ -1,17 +1,54 @@
 <div>
   <h3>Lista de usuarios ({{ this.totalUsuarios() }})</h3>
-  <button (click)="this.cambiarOrden('asc')">&#8593;</button>
-  <button (click)="this.cambiarOrden('desc')">&#8595;</button>
 
-  <button (click)="this.buscar(buscador.value)">&#x1F50E;&#xFE0E;</button>
-  <input
-    #buscador
-    type="text"
-    placeholder="Buscar por nombre"
-    (keyup.enter)="this.buscar(buscador.value)"
-  />
+  <div class="filtros">
+    <input
+      type="text"
+      placeholder="Buscar por nombre o apellido"
+      [formField]="this.filtrosForm.nombre"
+    />
 
-  <button (click)="this.goToCrear()"><b>+</b></button>
+    <label for="filtro-grupo">Grupo:</label>
+    <select id="filtro-grupo" [formField]="this.filtrosForm.grupo">
+      <option value="">Todos</option>
+      <option value="superadmin">superadmin</option>
+      <option value="admin">admin</option>
+      <option value="user">user</option>
+    </select>
+
+    <label for="filtro-activo">Estado:</label>
+    <select id="filtro-activo" [formField]="this.filtrosForm.activo">
+      <option value="">Todos</option>
+      <option value="true">Activos</option>
+      <option value="false">Inactivos</option>
+    </select>
+
+    <label for="orden-por">Ordenar por:</label>
+    <select id="orden-por" [formField]="this.filtrosForm.ordenar_por">
+      <option value="id_usuario">ID</option>
+      <option value="username">Username</option>
+      <option value="nombres">Nombres</option>
+      <option value="apellidos">Apellidos</option>
+      <option value="fecha_nacimiento">Nacimiento</option>
+    </select>
+    <button
+      title="Ascendente"
+      [class.activo]="this.orden() === 'asc'"
+      (click)="this.cambiarOrden('asc')"
+    >
+      &#8593;
+    </button>
+    <button
+      title="Descendente"
+      [class.activo]="this.orden() === 'desc'"
+      (click)="this.cambiarOrden('desc')"
+    >
+      &#8595;
+    </button>
+
+    <button class="texto" (click)="this.limpiarFiltros()">Limpiar</button>
+    <button title="Crear usuario" (click)="this.goToCrear()"><b>+</b></button>
+  </div>
 
   <table>
     <thead>
@@ -43,7 +80,15 @@
         </tr>
       } @empty {
         <tr>
-          <td colspan="5">No se encontraron usuarios registrados.</td>
+          <td colspan="8">
+            @if (this.usuariosResource.isLoading()) {
+              Cargando usuarios...
+            } @else if (this.usuariosResource.error()) {
+              <span class="error">No se pudieron cargar los usuarios.</span>
+            } @else {
+              No se encontraron usuarios con los filtros indicados.
+            }
+          </td>
         </tr>
       }
     </tbody>

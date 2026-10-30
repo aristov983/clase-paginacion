@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { Usuario, Orden, UsuariosPaginados } from '../model/usuario';
+import { Usuario, UsuariosPaginados, UsuariosQuery } from '../model/usuario';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -34,10 +34,22 @@ export class UsuariosService {
     return firstValueFrom(this._httpClient.delete<Usuario>(`${this.baseUrl}/${id}`));
   }
 
-  public async getPage(page: number, limit: number, orden: Orden, nombre: string) {
-    const params: Record<string, string | number> = { page, limit, orden };
-    if (nombre) {
-      params['nombre'] = nombre;
+  public async getPage(query: UsuariosQuery) {
+    const params: Record<string, string | number | boolean> = {
+      page: query.page,
+      limit: query.limit,
+      orden: query.orden,
+      ordenar_por: query.ordenar_por,
+    };
+    // Los filtros vacíos no se envían
+    if (query.nombre) {
+      params['nombre'] = query.nombre;
+    }
+    if (query.grupo) {
+      params['grupo'] = query.grupo;
+    }
+    if (query.activo !== undefined) {
+      params['activo'] = query.activo;
     }
 
     return await firstValueFrom(this._httpClient.get<UsuariosPaginados>(this.baseUrl, { params }));

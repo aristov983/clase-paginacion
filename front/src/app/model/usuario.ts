@@ -32,6 +32,21 @@ export type Meta = {
   last_page: number;
 };
 
+export type Grupo = 'user' | 'admin' | 'superadmin';
+
+export type UsuariosOrdenarPor =
+  'id_usuario' | 'username' | 'nombres' | 'apellidos' | 'fecha_nacimiento';
+
+export type UsuariosQuery = {
+  page: number;
+  limit: number;
+  orden: Orden;
+  ordenar_por: UsuariosOrdenarPor;
+  nombre?: string;
+  grupo?: Grupo;
+  activo?: boolean;
+};
+
 export type UsuariosPaginados = {
   data: Usuario[];
   meta: Meta;

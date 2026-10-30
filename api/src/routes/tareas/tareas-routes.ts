@@ -3,6 +3,8 @@ import {
   ActualizarTareaSchema,
   CrearTareaSchema,
   TareaSchema,
+  TareasPaginadas,
+  TareasQuerySchema,
 } from "../../schemas/tareas.ts";
 import { tareasRepo } from "../../repositories/tareas-repository.ts";
 import type { FastifyPluginAsyncTypebox } from "@fastify/type-provider-typebox";
@@ -13,16 +15,29 @@ const tareasRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
     {
       schema: {
         tags: ["tareas"],
-        summary: "",
-        description: "",
+        summary: "Obtener páginas de tareas",
+        description:
+          "Devuelve la página solicitada de tareas, con filtros y orden opcionales",
+        querystring: TareasQuerySchema,
         response: {
-          200: Type.Array(TareaSchema),
+          200: TareasPaginadas,
         },
       },
     },
-    async (_request, reply) => {
-      const tareas = await tareasRepo.obtenerTodas();
-      return reply.code(200).send(tareas);
+    async (request, reply) => {
+      const { page, limit } = request.query;
+      const total = await tareasRepo.obtenerTotal(request.query);
+      const tareas = await tareasRepo.obtenerPagina(request.query);
+      const res: TareasPaginadas = {
+        data: tareas,
+        meta: {
+          total,
+          page,
+          limit,
+          last_page: Math.ceil(total / limit) || 1,
+        },
+      };
+      return reply.code(200).send(res);
     },
   );
 

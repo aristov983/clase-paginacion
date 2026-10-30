@@ -26,14 +26,9 @@ const usuarioRoutes: FastifyPluginAsyncTypebox = async (
 			},
 		},
 		handler: async function (request, reply) {
-			const { page, limit, nombre, orden } = request.query;
-			const total = await usuariosRepo.obtenerTotal(nombre);
-			const usuarios = await usuariosRepo.obtenerPagina(
-				page,
-				limit,
-				nombre,
-				orden,
-			);
+			const { page, limit } = request.query;
+			const total = await usuariosRepo.obtenerTotal(request.query);
+			const usuarios = await usuariosRepo.obtenerPagina(request.query);
 			const res: UsuariosPaginados = {
 				data: usuarios,
 				meta: {

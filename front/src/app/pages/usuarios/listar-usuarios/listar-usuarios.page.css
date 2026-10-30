@@ -5,3 +5,28 @@ button {
   border-radius: 20px;
   margin: 3px;
 }
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.filtros label {
+  font-weight: bold;
+}
+
+button.activo {
+  background-color: #cfe8cf;
+}
+
+button.texto {
+  width: auto;
+  padding: 0 12px;
+}
+
+.error {
+  color: red;
+}

@@ -4,12 +4,87 @@ import type {
   ActualizarTareaType,
   CrearTareaType,
   Tarea,
+  TareasOrdenarPor,
+  TareasQuery,
 } from "../schemas/tareas.ts";
 
 class TareasRepository {
   private readonly baseQuery = `
     SELECT * FROM tareas T
   `;
+
+  /**
+   * Columnas por las que se permite ordenar. Se usa un mapa fijo (y no el valor
+   * que llega por query) para que nunca se concatene texto del cliente en el SQL.
+   */
+  private readonly columnasOrden: Record<TareasOrdenarPor, string> = {
+    id_tarea: "T.id_tarea",
+    titulo: "T.titulo",
+    prioridad: "T.prioridad",
+    creada: "T.creada",
+    estado: "T.estado",
+  };
+
+  /**
+   * Arma el WHERE (con placeholders $1, $2...) y sus valores a partir de los
+   * filtros opcionales. Lo comparten el COUNT y la consulta de la página.
+   */
+  private construirFiltros(filtros: TareasQuery) {
+    const condiciones: string[] = [];
+    const values: any[] = [];
+
+    if (filtros.titulo) {
+      values.push(`%${filtros.titulo}%`);
+      condiciones.push(`T.titulo ILIKE $${values.length}`);
+    }
+    if (filtros.estado) {
+      values.push(filtros.estado);
+      condiciones.push(`T.estado = $${values.length}`);
+    }
+    if (filtros.prioridad) {
+      values.push(filtros.prioridad);
+      condiciones.push(`T.prioridad = $${values.length}`);
+    }
+    if (filtros.grupo) {
+      values.push(filtros.grupo);
+      condiciones.push(`T.grupo = $${values.length}`);
+    }
+
+    const where = condiciones.length ? `WHERE ${condiciones.join(" AND ")}` : "";
+    return { where, values };
+  }
+
+  async obtenerTotal(filtros: TareasQuery): Promise<number> {
+    const { where, values } = this.construirFiltros(filtros);
+    const query = `
+      SELECT COUNT(*)::int AS total FROM tareas T
+      ${where};
+    `;
+    const result = await myPool.query(query, values);
+    return result.rows[0].total;
+  }
+
+  async obtenerPagina(query: TareasQuery): Promise<Tarea[]> {
+    const { page, limit, orden, ordenar_por } = query;
+    const offset = (page - 1) * limit;
+    const { where, values } = this.construirFiltros(query);
+
+    const columna = this.columnasOrden[ordenar_por ?? "creada"];
+    const direccion = orden === "desc" ? "DESC" : "ASC";
+
+    // El id_tarea como desempate mantiene estable el orden entre páginas
+    // cuando se ordena por un campo que puede repetirse (prioridad, estado...)
+    const sql = `
+      ${this.baseQuery}
+      ${where}
+      ORDER BY ${columna} ${direccion}, T.id_tarea ASC
+      LIMIT $${values.length + 1} OFFSET $${values.length + 2};
+    `;
+    values.push(limit, offset);
+
+    const result = await myPool.query(sql, values);
+    return result.rows;
+  }
 
   async obtenerTodas(): Promise<Tarea[]> {
     const query = `
